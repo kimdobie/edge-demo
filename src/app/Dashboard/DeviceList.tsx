@@ -27,6 +27,21 @@ const DeviceList = ({
   isLoading: boolean;
   onDeviceClick: (device: any) => void;
 }): ReactElement => {
+  const deviceActions = (device) => [
+    {
+      title: 'Details',
+      onClick: () => onDeviceClick(device),
+    },
+    {
+      title: 'Reboot',
+      onClick: () => alert(`Rebooting`),
+    },
+    {
+      title: 'Delete',
+      onClick: () => alert(`Deleting `),
+    },
+  ];
+
   return (
     <>
       <Title headingLevel="h1" size="lg" style={{ marginBottom: '15px' }}>
@@ -53,18 +68,7 @@ const DeviceList = ({
                   </Td>
                 ))}
                 <Td isActionCell>
-                  <ActionsColumn
-                    items={[
-                      {
-                        title: 'Reboot',
-                        onClick: () => alert(`Rebooting`),
-                      },
-                      {
-                        title: 'Delete',
-                        onClick: () => alert(`Deleting `),
-                      },
-                    ]}
-                  />
+                  <ActionsColumn items={deviceActions(device)} />
                 </Td>
               </Tr>
             ))}
