@@ -13,8 +13,8 @@ const Dashboard: React.FunctionComponent = () => {
 
   function getEvents() {
     axios
-      .get('http://192.168.0.116/data.json')
-      //.get('/data.json')
+      //.get('http://192.168.0.116/data.json')
+      .get('/data.json')
       .then((response) => response.data)
       .then((data) => {
         setDeviceData(data);
