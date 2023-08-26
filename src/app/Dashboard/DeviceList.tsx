@@ -2,6 +2,8 @@
 import React, { ReactElement } from 'react';
 import { Title, Spinner, Button } from '@patternfly/react-core';
 import { TableComposable, ActionsColumn, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
+import axios from 'axios';
+import { apiHost } from './helper';
 import { columns } from './helper';
 
 const tableCellData = (column, device, onDeviceClick) => {
@@ -22,11 +24,25 @@ const DeviceList = ({
   deviceData,
   isLoading,
   onDeviceClick,
+  onReboot,
 }: {
   deviceData: any;
   isLoading: boolean;
   onDeviceClick: (device: any) => void;
+  onReboot: () => void;
 }): ReactElement => {
+  const rebootDevice = (uuid) => {
+    axios.post(`${apiHost}/v1/reboot`, { uuid }).then(() => {
+      onReboot();
+    });
+  };
+
+  const upgradeDevice = (uuid) => {
+    axios.post(`${apiHost}/v1/upgrade`, { uuid }).then(() => {
+      onReboot();
+    });
+  };
+
   const deviceActions = (device) => [
     {
       title: 'Details',
@@ -34,7 +50,15 @@ const DeviceList = ({
     },
     {
       title: 'Reboot',
-      onClick: () => alert(`Rebooting`),
+      onClick: () => {
+        rebootDevice(device.uuid);
+      },
+    },
+    {
+      title: 'Upgrade',
+      onClick: () => {
+        upgradeDevice(device.uuid);
+      },
     },
     {
       title: 'Delete',

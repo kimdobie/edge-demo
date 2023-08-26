@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { PageSection, Card, CardBody } from '@patternfly/react-core';
 import axios from 'axios';
-import { refreshRate } from './helper';
+import { refreshRate, apiHost } from './helper';
 import DeviceList from './DeviceList';
 import DeviceDetail from './Detail';
 
@@ -11,10 +11,9 @@ const Dashboard: React.FunctionComponent = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [deviceDetail, setDeviceDetail] = React.useState<any | null>(null);
 
-  function getEvents() {
+  function getDevices() {
     axios
-      //.get('http://192.168.0.116/data.json')
-      .get('/data.json')
+      .get(`${apiHost}/data.json`)
       .then((response) => response.data)
       .then((data) => {
         setDeviceData(data);
@@ -29,8 +28,8 @@ const Dashboard: React.FunctionComponent = () => {
   }
   React.useEffect(() => {
     setIsLoading(true);
-    getEvents();
-    setInterval(getEvents, refreshRate);
+    getDevices();
+    //  setInterval(getDevices, refreshRate);
   }, []);
 
   const onClose = () => setDeviceDetail(null);
@@ -42,7 +41,12 @@ const Dashboard: React.FunctionComponent = () => {
       <Card>
         <CardBody>
           {deviceDetail === null ? (
-            <DeviceList deviceData={deviceData} isLoading={isLoading} onDeviceClick={onDeviceClick} />
+            <DeviceList
+              deviceData={deviceData}
+              isLoading={isLoading}
+              onDeviceClick={onDeviceClick}
+              onReboot={getDevices}
+            />
           ) : null}
           {deviceDetail !== null ? <DeviceDetail device={deviceDetail} onClose={onClose} /> : null}
         </CardBody>
