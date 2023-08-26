@@ -32,13 +32,19 @@ const DeviceList = ({
   onReboot: () => void;
 }): ReactElement => {
   const rebootDevice = (uuid) => {
-    axios.post(`${apiHost}/v1/reboot`, { uuid }).then(() => {
+    axios.post(`${apiHost}:8080/v1/reboot`, { uuid }).then(() => {
       onReboot();
     });
   };
 
   const upgradeDevice = (uuid) => {
-    axios.post(`${apiHost}/v1/upgrade`, { uuid }).then(() => {
+    axios.post(`${apiHost}:8080/v1/upgrade`, { uuid }).then(() => {
+      onReboot();
+    });
+  };
+
+  const deleteDevice = (uuid) => {
+    axios.post(`${apiHost}:8080/v1/delete`, { uuid }).then(() => {
       onReboot();
     });
   };
@@ -62,7 +68,7 @@ const DeviceList = ({
     },
     {
       title: 'Delete',
-      onClick: () => alert(`Deleting `),
+      onClick: () => deleteDevice(device.uuid),
     },
   ];
 

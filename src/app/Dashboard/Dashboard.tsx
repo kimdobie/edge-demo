@@ -29,7 +29,7 @@ const Dashboard: React.FunctionComponent = () => {
   React.useEffect(() => {
     setIsLoading(true);
     getDevices();
-    //  setInterval(getDevices, refreshRate);
+    setInterval(getDevices, refreshRate);
   }, []);
 
   const onClose = () => setDeviceDetail(null);
