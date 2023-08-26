@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom';
 import { Dashboard } from '@app/Dashboard/Dashboard';
+import { Detail } from '@app/Dashboard/Detail';
 import { Support } from '@app/Support/Support';
 import { GeneralSettings } from '@app/Settings/General/GeneralSettings';
 import { ProfileSettings } from '@app/Settings/Profile/ProfileSettings';
@@ -17,6 +18,7 @@ export interface IAppRoute {
   path: string;
   title: string;
   routes?: undefined;
+  hidden?: boolean;
 }
 
 export interface IAppRouteGroup {
@@ -33,6 +35,14 @@ const routes: AppRouteConfig[] = [
     label: 'Dashboard',
     path: '/',
     title: ' Main Dashboard',
+  },
+  {
+    component: Detail,
+    exact: true,
+    label: 'Detail',
+    path: '/detail/:uuid',
+    title: ' Detail',
+    hidden: true,
   },
   {
     component: Support,

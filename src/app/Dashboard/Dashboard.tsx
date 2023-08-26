@@ -1,68 +1,109 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
-import { PageSection, Card, CardBody } from '@patternfly/react-core';
-//import axios from 'axios';
-// import { refreshRate } from './helper';
-// import getDevices from '@app/getDevices';
-import DeviceList from './DeviceList';
-import DeviceDetail from './Detail';
+import { PageSection, Card, CardBody, Title, Spinner, Button } from '@patternfly/react-core';
+import { TableComposable, ActionsColumn, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 import { DeviceContext, DeviceLoadingContext } from '@app/Contexts.js';
+// import axios from 'axios';
+import { apiHost } from './helper';
+import { columns } from './helper';
+
+const tableCellData = (column, device) => {
+  const data = column.formatter ? column.formatter(device[column.key]) : device[column.key];
+  if (column.key === 'host') {
+    return (
+      <Button variant="link" isInline component={(props: any) => <Link {...props} to={`/detail/${device.uuid}`} />}>
+        {data}
+      </Button>
+    );
+  }
+  return data;
+};
 
 const Dashboard: React.FunctionComponent = () => {
   const devices = React.useContext(DeviceContext);
   const isLoading = React.useContext(DeviceLoadingContext);
-  // const [deviceData, setDeviceData] = React.useState<any[]>([]);
-  // const [isLoading, setIsLoading] = React.useState(false);
-  const [deviceDetail, setDeviceDetail] = React.useState<any | null>(null);
 
-  // function getDevices() {
-  //   axios
-  //     .get(`${apiHost}/data.json`)
-  //     .then((response) => response.data)
-  //     .then((data) => {
-  //       setDeviceData(data);
-  //       setIsLoading(false);
-  //       if (deviceDetail !== null) {
-  //         const selected = data.find((device) => device.uuid === deviceDetail.uuid);
-  //         if (selected) {
-  //           setDeviceDetail(selected);
-  //         }
-  //       }
-  //     });
-  // }
-  // const processGetDevices = (devices) => {
-  //   setDeviceData(devices);
-  //   setIsLoading(false);
-  //   if (deviceDetail !== null) {
-  //     const selected = devices.find((device) => device.uuid === deviceDetail.uuid);
-  //     if (selected) {
-  //       setDeviceDetail(selected);
-  //     }
-  //   }
-  // };
+  const rebootDevice = (uuid) => {
+    axios.post(`${apiHost}/v1/reboot`, { uuid }).then(() => {
+      //   onReboot();
+    });
+  };
 
-  // React.useEffect(() => {
-  //   setIsLoading(true);
-  //   getDevices(processGetDevices);
-  //   setInterval(() => getDevices(processGetDevices), refreshRate);
-  // }, []);
+  const upgradeDevice = (uuid) => {
+    axios.post(`${apiHost}/v1/upgrade`, { uuid }).then(() => {
+      console.log('Updating');
+    });
+  };
 
-  const onClose = () => setDeviceDetail(null);
-
-  const onDeviceClick = (device) => setDeviceDetail(device);
+  const deviceActions = (device) => [
+    {
+      title: <Link to={`/detail/${device.uuid}`}>Details</Link>,
+    },
+    {
+      title: 'Reboot',
+      onClick: () => {
+        rebootDevice(device.uuid);
+      },
+    },
+    {
+      title: 'Upgrade',
+      onClick: () => {
+        upgradeDevice(device.uuid);
+      },
+    },
+    {
+      title: 'Delete',
+      onClick: () => alert(`Deleting `),
+    },
+  ];
 
   return (
-    <PageSection>
-      <Card>
-        <CardBody>
-          {deviceDetail === null ? (
-            <DeviceList deviceData={devices} isLoading={isLoading} onDeviceClick={onDeviceClick} onReboot={() => {}} />
-          ) : null}
-          {deviceDetail !== null ? <DeviceDetail device={deviceDetail} onClose={onClose} /> : null}
-        </CardBody>
-      </Card>
-    </PageSection>
+    <>
+      <PageSection>
+        <Card>
+          <CardBody>
+            <Title headingLevel="h1" size="lg" style={{ marginBottom: '15px' }}>
+              Edge node list view
+            </Title>
+
+            <TableComposable aria-label="Simple table">
+              <Thead>
+                <Tr>
+                  {columns.map((column) => (
+                    <Th key={column.key}>{column.label}</Th>
+                  ))}
+                  <Td></Td>
+                </Tr>
+              </Thead>
+
+              {devices.length > 0 && (
+                <Tbody>
+                  {devices.map((device) => (
+                    // @ts-ignore
+                    <Tr key={device.uuid}>
+                      {columns.map((column) => (
+                        // @ts-ignore
+                        <Td dataLabel={column.label} key={`${column.label}${device.uuid}`}>
+                          {tableCellData(column, device)}
+                        </Td>
+                      ))}
+                      <Td isActionCell>
+                        <ActionsColumn items={deviceActions(device)} />
+                      </Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              )}
+            </TableComposable>
+            {isLoading ? <Spinner /> : null}
+          </CardBody>
+        </Card>
+      </PageSection>
+    </>
   );
 };
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { ReactElement } from 'react';
 import {
@@ -7,37 +8,68 @@ import {
   DescriptionListTerm,
   DescriptionListDescription,
   Button,
+  PageSection,
+  Card,
+  CardBody,
 } from '@patternfly/react-core';
+import { useParams, Link } from 'react-router-dom';
+import { DeviceContext, DeviceLoadingContext } from '@app/Contexts.js';
 import { dataList } from './helper';
 
 const deviceData = (column, device) => {
   const data = column.formatter ? column.formatter(device[column.key]) : device[column.key];
   return (
-    <DescriptionListGroup>
+    <DescriptionListGroup key={column.label}>
       <DescriptionListTerm>{column.label}</DescriptionListTerm>
       <DescriptionListDescription>{data}</DescriptionListDescription>
     </DescriptionListGroup>
   );
 };
 
-const Detail = ({ device, onClose }: { children?: any; device: any; onClose: () => void }): ReactElement => {
+const Detail = (): ReactElement => {
+  // @ts-ignore
+  const { uuid } = useParams();
+  const devices = React.useContext(DeviceContext);
+  const isLoading = React.useContext(DeviceLoadingContext);
+  const [device, setDevice] = React.useState(undefined);
+
+  React.useEffect(() => {
+    // @ts-ignore
+    setDevice(devices.find((d) => d.uuid === uuid));
+  }, [devices, isLoading, uuid]);
+
   return (
     <>
-      <Title headingLevel="h1" size="lg" style={{ marginBottom: '15px' }}>
-        Edge node detail
-      </Title>
-      <DescriptionList
-        columnModifier={{
-          default: '2Col',
-        }}
-      >
-        {dataList.map((column) => deviceData(column, device))}
-      </DescriptionList>
-      <Button variant="primary" onClick={onClose} style={{ marginTop: '20px' }}>
-        Go back to list
-      </Button>
+      <PageSection>
+        <Card>
+          <CardBody>
+            <Title headingLevel="h1" size="lg" style={{ marginBottom: '15px' }}>
+              Edge node detail
+            </Title>
+
+            {isLoading ? <p>Loading data ...</p> : null}
+            {!isLoading && !device ? <p>Device not found</p> : null}
+            {!isLoading && device ? (
+              <DescriptionList
+                columnModifier={{
+                  default: '2Col',
+                }}
+              >
+                {dataList.map((column) => deviceData(column, device))}
+              </DescriptionList>
+            ) : null}
+
+            <Button
+              variant="primary"
+              component={(props: any) => <Link {...props} to="/" style={{ marginTop: '20px' }} />}
+            >
+              Go back to list
+            </Button>
+          </CardBody>
+        </Card>
+      </PageSection>
     </>
   );
 };
 
-export default Detail;
+export { Detail };
