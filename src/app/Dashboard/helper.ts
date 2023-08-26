@@ -40,5 +40,5 @@ export const refreshRate = 3000;
 
 ///////////// SET URL HOST  ///////////////////
 
-// export const apiHost = '';
-export const apiHost = 'http://192.168.0.116';
+export const apiHost = '';
+//export const apiHost = 'http://192.168.0.116';
