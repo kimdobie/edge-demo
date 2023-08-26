@@ -7,9 +7,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 import { DeviceContext, DeviceLoadingContext } from '@app/Contexts.js';
-// import axios from 'axios';
-import { apiHost } from './helper';
-import { columns } from './helper';
+import { apiHost, columns } from '../helper';
 
 const tableCellData = (column, device) => {
   const data = column.formatter ? column.formatter(device[column.key]) : device[column.key];
@@ -22,26 +20,43 @@ const tableCellData = (column, device) => {
   }
   return data;
 };
-
-const Dashboard: React.FunctionComponent = () => {
+// @ts-ignore
+const Dashboard: React.FunctionComponent = ({ reloadDevices }: { reloadDevices: () => void }) => {
   const devices = React.useContext(DeviceContext);
   const isLoading = React.useContext(DeviceLoadingContext);
 
   const rebootDevice = (uuid) => {
-    axios.post(`${apiHost}/v1/reboot`, { uuid }).then(() => {
-      //   onReboot();
-    });
+    axios
+      .post(`${apiHost}/v1/reboot`, { uuid })
+      .then(() => {
+        // process request
+      })
+      .finally(() => {
+        reloadDevices();
+      });
   };
 
   const upgradeDevice = (uuid) => {
-    axios.post(`${apiHost}/v1/upgrade`, { uuid }).then(() => {
-      console.log('Updating');
-    });
+    axios
+      .post(`${apiHost}/v1/upgrade`, { uuid })
+      .then(() => {
+        // process request
+      })
+      .finally(() => {
+        reloadDevices();
+      });
   };
 
   const deviceActions = (device) => [
     {
-      title: <Link to={`/detail/${device.uuid}`}>Details</Link>,
+      title: (
+        <Link
+          to={`/detail/${device.uuid}`}
+          style={{ color: 'var(--pf-c-dropdown__menu-item--Color)', textDecoration: 'none !important' }}
+        >
+          Details
+        </Link>
+      ),
     },
     {
       title: 'Reboot',

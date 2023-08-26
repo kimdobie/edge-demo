@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import axios from 'axios';
-import { apiHost } from './Dashboard/helper';
+import { apiHost } from './helper';
 
 const getDevices = (callback) => {
   axios

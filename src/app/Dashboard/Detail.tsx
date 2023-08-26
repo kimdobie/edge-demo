@@ -14,7 +14,7 @@ import {
 } from '@patternfly/react-core';
 import { useParams, Link } from 'react-router-dom';
 import { DeviceContext, DeviceLoadingContext } from '@app/Contexts.js';
-import { dataList } from './helper';
+import { dataList } from '../helper';
 
 const deviceData = (column, device) => {
   const data = column.formatter ? column.formatter(device[column.key]) : device[column.key];

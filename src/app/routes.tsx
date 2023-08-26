@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 import { Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom';
 import { Dashboard } from '@app/Dashboard/Dashboard';
 import { Detail } from '@app/Dashboard/Detail';
 import { Support } from '@app/Support/Support';
+import { Images } from '@app/Images/Images';
 import { GeneralSettings } from '@app/Settings/General/GeneralSettings';
 import { ProfileSettings } from '@app/Settings/Profile/ProfileSettings';
 import { NotFound } from '@app/NotFound/NotFound';
@@ -19,6 +21,7 @@ export interface IAppRoute {
   title: string;
   routes?: undefined;
   hidden?: boolean;
+  reloadDevices?: () => void;
 }
 
 export interface IAppRouteGroup {
@@ -45,31 +48,38 @@ const routes: AppRouteConfig[] = [
     hidden: true,
   },
   {
-    component: Support,
+    component: Images,
     exact: true,
-    label: 'Support',
-    path: '/support',
-    title: 'Support Page',
+    label: 'Images',
+    path: '/images',
+    title: ' Images',
   },
-  {
-    label: 'Settings',
-    routes: [
-      {
-        component: GeneralSettings,
-        exact: true,
-        label: 'General',
-        path: '/settings/general',
-        title: 'General Settings',
-      },
-      {
-        component: ProfileSettings,
-        exact: true,
-        label: 'Profile',
-        path: '/settings/profile',
-        title: 'Profile Settings',
-      },
-    ],
-  },
+  // {
+  //   component: Support,
+  //   exact: true,
+  //   label: 'Support',
+  //   path: '/support',
+  //   title: 'Support Page',
+  // },
+  // {
+  //   label: 'Settings',
+  //   routes: [
+  //     {
+  //       component: GeneralSettings,
+  //       exact: true,
+  //       label: 'General',
+  //       path: '/settings/general',
+  //       title: 'General Settings',
+  //     },
+  //     {
+  //       component: ProfileSettings,
+  //       exact: true,
+  //       label: 'Profile',
+  //       path: '/settings/profile',
+  //       title: 'Profile Settings',
+  //     },
+  //   ],
+  // },
 ];
 
 // a custom hook for sending focus to the primary content container
@@ -91,12 +101,13 @@ const useA11yRouteChange = () => {
   }, [pathname]);
 };
 
-const RouteWithTitleUpdates = ({ component: Component, title, ...rest }: IAppRoute) => {
+const RouteWithTitleUpdates = ({ component: Component, reloadDevices, title, ...rest }: IAppRoute) => {
   useA11yRouteChange();
   useDocumentTitle(title);
 
   function routeWithTitle(routeProps: RouteComponentProps) {
-    return <Component {...rest} {...routeProps} />;
+    //@ts-ignore
+    return <Component {...rest} {...routeProps} reloadDevices={reloadDevices} />;
   }
 
   return <Route render={routeWithTitle} {...rest} />;
@@ -108,14 +119,22 @@ const PageNotFound = ({ title }: { title: string }) => {
 };
 
 const flattenedRoutes: IAppRoute[] = routes.reduce(
+  // @ts-ignore
   (flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])],
   [] as IAppRoute[]
 );
 
-const AppRoutes = (): React.ReactElement => (
+const AppRoutes = ({ reloadDevices }: { reloadDevices: () => void }): React.ReactElement => (
   <Switch>
     {flattenedRoutes.map(({ path, exact, component, title }, idx) => (
-      <RouteWithTitleUpdates path={path} exact={exact} component={component} key={idx} title={title} />
+      <RouteWithTitleUpdates
+        path={path}
+        exact={exact}
+        component={component}
+        key={idx}
+        title={title}
+        reloadDevices={reloadDevices}
+      />
     ))}
     <PageNotFound title="404 Page Not Found" />
   </Switch>
