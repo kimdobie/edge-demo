@@ -27,7 +27,7 @@ const Dashboard: React.FunctionComponent = ({ reloadDevices }: { reloadDevices: 
 
   const rebootDevice = (uuid) => {
     axios
-      .post(`${apiHost}/v1/reboot`, { uuid })
+      .post(`${apiHost || window.location.origin}:8080/v1/reboot`, { uuid })
       .then(() => {
         // process request
       })
@@ -38,7 +38,17 @@ const Dashboard: React.FunctionComponent = ({ reloadDevices }: { reloadDevices: 
 
   const upgradeDevice = (uuid) => {
     axios
-      .post(`${apiHost}/v1/upgrade`, { uuid })
+      .post(`${apiHost || window.location.origin}:8080/v1/upgrade`, { uuid })
+      .then(() => {
+        // process request
+      })
+      .finally(() => {
+        reloadDevices();
+      });
+  };
+  const deleteDevice = (uuid) => {
+    axios
+      .post(`${apiHost || window.location.origin}:8080/v1/delete`, { uuid })
       .then(() => {
         // process request
       })
@@ -72,7 +82,9 @@ const Dashboard: React.FunctionComponent = ({ reloadDevices }: { reloadDevices: 
     },
     {
       title: 'Delete',
-      onClick: () => alert(`Deleting `),
+      onClick: () => {
+        deleteDevice(device.uuid);
+      },
     },
   ];
 
